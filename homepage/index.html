@@ -3,122 +3,326 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LocalLink</title>
+<title>LocalLink · 지역 소상공인과 브랜드를 잇는 협업 플랫폼</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
+  :root { --navy: #14234f; --navy-2: #1e3378; --blue: #3558e6; --sky: #eef2ff; --ink: #121a2f; --muted: #5d6781; --line: #e4e8f2; --bg: #f7f8fc; --warm: #ffb547; }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-size: 17px; line-height: 1.7; background: #f6f8fc; color: #16213a; }
-  header { position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 6vw; background: #fff; border-bottom: 1px solid #e3e7ef; }
-  .logo { font-size: 22px; font-weight: 800; color: #1b2f6b; }
-  nav { display: flex; gap: 4px; }
-  nav button { padding: 10px 14px; border: 0; border-radius: 10px; background: none; font-size: 16px; font-weight: 700; color: #475467; cursor: pointer; }
-  nav button.on { background: #1b2f6b; color: #fff; }
-  section[data-page] { display: none; padding: 48px 6vw 64px; max-width: 1100px; margin: 0 auto; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: Pretendard, -apple-system, "Apple SD Gothic Neo", sans-serif; font-size: 17px; line-height: 1.7; color: var(--ink); background: #fff; letter-spacing: -0.01em; }
+  img { display: block; max-width: 100%; }
+  .container { width: min(1180px, 100% - 48px); margin: 0 auto; }
+
+  /* 헤더 */
+  header { position: sticky; top: 0; z-index: 20; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  header .container { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 72px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 21px; font-weight: 800; color: var(--navy); letter-spacing: -0.03em; cursor: pointer; }
+  .logo i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--blue), var(--navy)); color: #fff; font-style: normal; font-size: 16px; }
+  nav { display: flex; align-items: center; gap: 4px; }
+  nav button { padding: 9px 14px; border: 0; border-radius: 10px; background: none; font: inherit; font-size: 16px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  nav button:hover { color: var(--navy); }
+  nav button.on { color: var(--navy); background: var(--sky); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border: 0; border-radius: 12px; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--navy); color: #fff; box-shadow: 0 8px 20px rgba(20, 35, 79, 0.25); }
+  .btn-ghost { background: #fff; color: var(--navy); border: 1px solid var(--line); }
+  .btn-sm { padding: 10px 16px; font-size: 15px; }
+
+  section[data-page] { display: none; }
   section[data-page].on { display: block; }
-  h1 { margin: 0 0 14px; font-size: clamp(30px, 5vw, 46px); line-height: 1.3; color: #1b2f6b; }
-  h2 { margin: 48px 0 16px; font-size: 26px; color: #1b2f6b; }
-  .lead { max-width: 640px; color: #475467; font-size: 19px; }
-  .btn { display: inline-block; margin-top: 18px; padding: 14px 24px; border: 0; border-radius: 999px; background: #1b2f6b; color: #fff; font-size: 17px; font-weight: 700; cursor: pointer; }
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .card { padding: 22px; background: #fff; border: 1px solid #e3e7ef; border-radius: 16px; }
-  .card h3 { margin: 0 0 6px; font-size: 19px; }
-  .card p { margin: 0; color: #475467; }
-  .num { display: inline-grid; place-items: center; width: 34px; height: 34px; margin-bottom: 10px; border-radius: 50%; background: #e8edfb; color: #1b2f6b; font-weight: 800; }
-  .vision { padding: 30px; border-radius: 18px; background: #1b2f6b; color: #fff; font-size: clamp(22px, 3.4vw, 30px); font-weight: 800; line-height: 1.45; }
-  .photo { height: 120px; margin-bottom: 12px; border-radius: 12px; background: #e8edfb; display: grid; place-items: center; color: #8a98c2; font-size: 14px; }
-  .role { color: #2457f5; font-weight: 700; font-size: 15px; }
-  .timeline { margin: 0; padding: 0 0 0 22px; border-left: 3px solid #c9d4f3; list-style: none; }
-  .timeline li { position: relative; margin-bottom: 18px; }
-  .timeline li::before { content: ""; position: absolute; left: -30px; top: 8px; width: 13px; height: 13px; border-radius: 50%; background: #1b2f6b; }
-  .timeline b { display: block; color: #1b2f6b; }
-  .notice { margin-bottom: 18px; padding: 14px 16px; border-radius: 12px; background: #fff7e6; color: #8a5a00; font-size: 15px; }
-  form { display: grid; gap: 12px; max-width: 640px; }
+
+  /* 히어로 */
+  .hero { padding: 72px 0 88px; background: radial-gradient(1200px 500px at 90% -10%, #e3e9ff 0%, transparent 60%), linear-gradient(#fff, var(--bg)); }
+  .hero .container { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: #fff; border: 1px solid var(--line); color: var(--blue); font-size: 14px; font-weight: 700; }
+  .eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+  .hero h1 { margin: 20px 0 18px; font-size: clamp(36px, 5.2vw, 60px); line-height: 1.18; letter-spacing: -0.045em; color: var(--navy); }
+  .hero h1 em { font-style: normal; color: var(--blue); }
+  .hero .lead { max-width: 540px; margin: 0 0 32px; color: var(--muted); font-size: 19px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .stats { display: flex; gap: 36px; margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--line); }
+  .stats b { display: block; font-size: 30px; font-weight: 800; color: var(--navy); letter-spacing: -0.03em; }
+  .stats span { color: var(--muted); font-size: 14px; }
+  .hero-visual { position: relative; }
+  .hero-visual > img { width: 100%; aspect-ratio: 4 / 3.4; object-fit: cover; border-radius: 28px; box-shadow: 0 30px 60px rgba(20, 35, 79, 0.18); }
+  .float { position: absolute; display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-radius: 16px; background: #fff; box-shadow: 0 16px 40px rgba(20, 35, 79, 0.16); font-size: 14px; }
+  .float b { display: block; color: var(--navy); font-size: 16px; }
+  .float span { color: var(--muted); }
+  .float .ic { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--sky); font-size: 20px; }
+  .float.f1 { left: -28px; bottom: 36px; }
+  .float.f2 { right: -18px; top: 28px; }
+
+  /* 신뢰 바 */
+  .trust { padding: 26px 0; border-bottom: 1px solid var(--line); background: #fff; }
+  .trust .container { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .trust p { margin: 0; color: var(--muted); font-size: 14px; font-weight: 600; }
+  .brands { display: flex; gap: 40px; flex-wrap: wrap; }
+  .brands span { color: #a3abbf; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+
+  /* 공통 섹션 */
+  .block { padding: 96px 0; }
+  .block.alt { background: var(--bg); }
+  .head { max-width: 640px; margin-bottom: 44px; }
+  .head.center { margin-left: auto; margin-right: auto; text-align: center; }
+  .kicker { color: var(--blue); font-size: 14px; font-weight: 800; letter-spacing: 0.12em; }
+  .head h2 { margin: 10px 0 12px; font-size: clamp(28px, 3.6vw, 40px); line-height: 1.3; letter-spacing: -0.04em; color: var(--navy); }
+  .head p { margin: 0; color: var(--muted); }
+
+  /* 가치 카드 */
+  .values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .value { overflow: hidden; border: 1px solid var(--line); border-radius: 22px; background: #fff; transition: transform .2s, box-shadow .2s; }
+  .value:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(20, 35, 79, 0.1); }
+  .value img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+  .value div { padding: 24px 26px 28px; }
+  .value h3 { margin: 0 0 8px; font-size: 21px; color: var(--navy); letter-spacing: -0.03em; }
+  .value p { margin: 0; color: var(--muted); font-size: 16px; }
+
+  /* 이용 과정 */
+  .steps { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; counter-reset: step; }
+  .steps::before { content: ""; position: absolute; top: 34px; left: 16%; right: 16%; height: 2px; background: repeating-linear-gradient(90deg, #c7d2fe 0 8px, transparent 8px 16px); }
+  .step { position: relative; padding: 0 12px; text-align: center; }
+  .step .n { position: relative; display: grid; place-items: center; width: 68px; height: 68px; margin: 0 auto 20px; border-radius: 50%; background: #fff; border: 2px solid #c7d2fe; color: var(--blue); font-size: 24px; font-weight: 800; }
+  .step h3 { margin: 0 0 8px; font-size: 20px; color: var(--navy); }
+  .step p { margin: 0; color: var(--muted); font-size: 16px; }
+
+  /* 파트너 사례 */
+  .partners { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .partner { position: relative; overflow: hidden; margin: 0; border-radius: 20px; aspect-ratio: 3 / 4; }
+  .partner img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+  .partner:hover img { transform: scale(1.05); }
+  .partner figcaption { position: absolute; inset: auto 0 0 0; padding: 60px 18px 18px; background: linear-gradient(transparent, rgba(10, 18, 42, 0.85)); color: #fff; }
+  .partner figcaption b { display: block; font-size: 18px; }
+  .partner figcaption span { font-size: 14px; opacity: .85; }
+  .tag { display: inline-block; margin-bottom: 6px; padding: 3px 9px; border-radius: 999px; background: rgba(255, 255, 255, 0.2); font-size: 12px; font-weight: 700; }
+
+  /* 후기 */
+  .quote { display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; align-items: center; }
+  .quote img { width: 100%; aspect-ratio: 5 / 4; object-fit: cover; border-radius: 24px; }
+  .quote blockquote { margin: 0 0 22px; font-size: clamp(22px, 2.6vw, 30px); font-weight: 700; line-height: 1.5; letter-spacing: -0.03em; color: var(--navy); }
+  .quote blockquote::before { content: "“"; display: block; height: 44px; color: var(--blue); font-size: 72px; line-height: 1; }
+  .quote cite { font-style: normal; color: var(--muted); }
+  .quote cite b { color: var(--ink); }
+
+  /* CTA */
+  .cta { position: relative; overflow: hidden; margin: 0 auto 96px; padding: 72px 56px; border-radius: 28px; color: #fff; background: linear-gradient(100deg, rgba(20, 35, 79, 0.96) 35%, rgba(20, 35, 79, 0.55)), url("images/cta.jpg") center / cover; }
+  .cta h2 { margin: 0 0 12px; font-size: clamp(26px, 3.4vw, 38px); line-height: 1.3; letter-spacing: -0.04em; }
+  .cta p { max-width: 520px; margin: 0 0 28px; color: #c9d2ee; }
+  .cta .btn-primary { background: #fff; color: var(--navy); }
+
+  /* 회사 소개 · 문의하기 */
+  .page { padding: 64px 0 96px; }
+  .page h1 { margin: 0 0 14px; font-size: clamp(30px, 4.4vw, 44px); letter-spacing: -0.04em; color: var(--navy); }
+  .page h2 { margin: 56px 0 18px; font-size: 26px; letter-spacing: -0.03em; color: var(--navy); }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .card { padding: 24px; background: #fff; border: 1px solid var(--line); border-radius: 18px; }
+  .card h3 { margin: 0 0 6px; font-size: 19px; color: var(--navy); }
+  .card p { margin: 0; color: var(--muted); }
+  .vision { padding: 40px; border-radius: 24px; background: linear-gradient(120deg, var(--navy), var(--navy-2)); color: #fff; font-size: clamp(22px, 3.2vw, 32px); font-weight: 800; line-height: 1.45; letter-spacing: -0.03em; }
+  .photo { display: grid; place-items: center; height: 150px; margin-bottom: 14px; border-radius: 14px; background: var(--sky); color: #8a98c2; font-size: 14px; }
+  .role { color: var(--blue); font-weight: 700; font-size: 15px; }
+  .timeline { margin: 0; padding: 0 0 0 24px; border-left: 3px solid #c7d2fe; list-style: none; }
+  .timeline li { position: relative; margin-bottom: 22px; }
+  .timeline li::before { content: ""; position: absolute; left: -32px; top: 8px; width: 13px; height: 13px; border-radius: 50%; background: var(--navy); }
+  .timeline b { display: block; color: var(--navy); }
+  .notice { margin: 0 0 22px; padding: 14px 18px; border-radius: 12px; background: #fff7e6; color: #8a5a00; font-size: 15px; }
+  form { display: grid; gap: 14px; max-width: 640px; }
   label { font-weight: 700; }
-  input, textarea { display: block; width: 100%; margin-top: 6px; padding: 12px 14px; border: 1px solid #cfd6e3; border-radius: 10px; font-size: 16px; font-family: inherit; }
-  textarea { min-height: 120px; }
+  input, textarea { display: block; width: 100%; margin-top: 6px; padding: 13px 15px; border: 1px solid #cfd6e3; border-radius: 12px; font: inherit; font-size: 16px; }
+  input:focus, textarea:focus { outline: 2px solid #c7d2fe; border-color: var(--blue); }
+  textarea { min-height: 130px; }
   .msg { min-height: 24px; font-weight: 700; }
   .msg.err { color: #c0362c; } .msg.ok { color: #067647; }
-  .inquiries { display: grid; gap: 10px; max-width: 640px; }
-  .inquiries .card small { color: #667085; }
-  footer { padding: 28px 6vw; color: #8a93a3; font-size: 14px; text-align: center; }
-  @media (max-width: 760px) {
-    header { flex-direction: column; align-items: flex-start; }
-    nav { width: 100%; } nav button { flex: 1; }
-    .grid { grid-template-columns: 1fr; }
+  .inquiries { display: grid; gap: 12px; max-width: 640px; }
+  .inquiries .card small { color: var(--muted); }
+
+  footer { padding: 40px 0; background: #0d1733; color: #8f9bbd; font-size: 14px; }
+  footer .container { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer .logo { color: #fff; font-size: 18px; }
+
+  @media (max-width: 960px) {
+    .hero .container, .quote { grid-template-columns: 1fr; }
+    .hero { padding-top: 48px; }
+    .float.f1 { left: 12px; } .float.f2 { right: 12px; }
+    .values, .grid3 { grid-template-columns: 1fr; }
+    .partners { grid-template-columns: repeat(2, 1fr); }
+    .steps { grid-template-columns: 1fr; gap: 32px; }
+    .steps::before { display: none; }
+    .cta { padding: 48px 28px; }
+  }
+  @media (max-width: 640px) {
+    header .container { height: auto; padding: 12px 0; flex-wrap: wrap; }
+    nav { order: 3; width: 100%; } nav button { flex: 1; padding: 9px 6px; }
+    .header-cta { display: none; }
+    .stats { gap: 22px; } .stats b { font-size: 24px; }
+    .float { display: none; }
+    .block { padding: 72px 0; }
   }
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">LocalLink</div>
-  <nav>
-    <button type="button" data-go="home" class="on">홈</button>
-    <button type="button" data-go="about">회사 소개</button>
-    <button type="button" data-go="contact">문의하기</button>
-  </nav>
+  <div class="container">
+    <div class="logo" data-go="home"><i>L</i>LocalLink</div>
+    <nav>
+      <button type="button" data-go="home" class="on">홈</button>
+      <button type="button" data-go="about">회사 소개</button>
+      <button type="button" data-go="contact">문의하기</button>
+    </nav>
+    <button class="btn btn-primary btn-sm header-cta" type="button" data-go="contact">무료 상담 신청</button>
+  </div>
 </header>
 
+<!-- 홈 -->
 <section data-page="home" class="on">
-  <h1>지역 소상공인과 브랜드를<br>가장 쉽게 연결합니다</h1>
-  <p class="lead">LocalLink는 지역 소상공인과 협업하려는 브랜드 담당자에게 딱 맞는 동네 파트너를 찾아주고, 협업의 시작부터 결과 확인까지 함께합니다.</p>
-  <button class="btn" type="button" id="toProcess">협업 방식 보기</button>
-
-  <h2>LocalLink가 제공하는 가치</h2>
-  <div class="grid">
-    <div class="card"><h3>검증된 지역 파트너</h3><p>업종·위치·고객층을 기준으로 브랜드와 잘 맞는 소상공인을 추천합니다.</p></div>
-    <div class="card"><h3>간편한 협업 진행</h3><p>제안부터 일정 조율까지 한곳에서 진행해 담당자의 시간을 아낍니다.</p></div>
-    <div class="card"><h3>한눈에 보는 성과</h3><p>방문·구매 변화를 정리한 리포트로 협업 효과를 확인합니다.</p></div>
+  <div class="hero">
+    <div class="container">
+      <div>
+        <span class="eyebrow">지역 × 브랜드 협업 플랫폼</span>
+        <h1>우리 동네 가게와<br>브랜드를 <em>가장 쉽게</em><br>연결합니다</h1>
+        <p class="lead">LocalLink는 지역 소상공인과 협업하려는 브랜드 담당자에게 딱 맞는 동네 파트너를 찾아주고, 제안부터 성과 확인까지 한 번에 도와드립니다.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" type="button" id="toProcess">협업 방식 보기 →</button>
+          <button class="btn btn-ghost" type="button" data-go="contact">무료 상담 신청</button>
+        </div>
+        <div class="stats">
+          <div><b>120+</b><span>지역 파트너 매장</span></div>
+          <div><b>300건</b><span>누적 협업 캠페인</span></div>
+          <div><b>92%</b><span>브랜드 재참여율</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <img src="images/hero.jpg" alt="앞치마를 두르고 가게 앞에 함께 서 있는 두 명의 카페 사장님">
+        <div class="float f1"><span class="ic">🤝</span><div><b>매칭 완료</b><span>성북구 카페 12곳 × 음료 브랜드</span></div></div>
+        <div class="float f2"><span class="ic">📈</span><div><b>방문객 +38%</b><span>협업 4주 차 리포트</span></div></div>
+      </div>
+    </div>
   </div>
 
-  <h2 id="process">이용 과정 3단계</h2>
-  <div class="grid">
-    <div class="card"><span class="num">1</span><h3>협업 목표 등록</h3><p>원하는 지역, 기간, 예산을 알려주세요.</p></div>
-    <div class="card"><span class="num">2</span><h3>파트너 매칭</h3><p>조건에 맞는 소상공인 후보를 받아보고 선택합니다.</p></div>
-    <div class="card"><span class="num">3</span><h3>협업 진행·리포트</h3><p>프로모션을 진행하고 결과 리포트를 받아봅니다.</p></div>
+  <div class="trust">
+    <div class="container">
+      <p>LocalLink와 함께한 브랜드</p>
+      <div class="brands"><span>MORNING BREW</span><span>그린데이</span><span>HANDO</span><span>오늘상회</span><span>NOVA</span></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="container">
+      <div class="head">
+        <div class="kicker">WHY LOCALLINK</div>
+        <h2>LocalLink가 제공하는 가치</h2>
+        <p>브랜드는 믿을 수 있는 동네 파트너를, 소상공인은 새로운 고객을 만납니다.</p>
+      </div>
+      <div class="values">
+        <article class="value"><img src="images/alley.jpg" alt="간판이 늘어선 서울의 좁은 상점 골목"><div><h3>검증된 지역 파트너</h3><p>업종·위치·고객층을 기준으로 브랜드와 잘 맞는 소상공인을 추천합니다.</p></div></article>
+        <article class="value"><img src="images/meeting.jpg" alt="카페 테이블에서 노트북을 두고 협업을 논의하는 두 사람"><div><h3>간편한 협업 진행</h3><p>제안부터 일정 조율, 계약까지 한곳에서 진행해 담당자의 시간을 아낍니다.</p></div></article>
+        <article class="value"><img src="images/report.jpg" alt="노트북으로 데이터를 함께 확인하는 사람들"><div><h3>한눈에 보는 성과</h3><p>방문·구매 변화를 정리한 리포트로 협업 효과를 숫자로 확인합니다.</p></div></article>
+      </div>
+    </div>
+  </div>
+
+  <div class="block alt" id="process">
+    <div class="container">
+      <div class="head center">
+        <div class="kicker">HOW IT WORKS</div>
+        <h2>이용 과정 3단계</h2>
+        <p>복잡한 절차 없이, 평균 2주 안에 첫 협업을 시작할 수 있습니다.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><h3>협업 목표 등록</h3><p>원하는 지역, 기간, 예산과 목표 고객을 알려주세요.</p></div>
+        <div class="step"><div class="n">2</div><h3>파트너 매칭</h3><p>조건에 맞는 소상공인 후보를 비교하고 선택합니다.</p></div>
+        <div class="step"><div class="n">3</div><h3>협업 진행 · 리포트</h3><p>프로모션을 진행하고 주간 성과 리포트를 받아봅니다.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="container">
+      <div class="head">
+        <div class="kicker">LOCAL PARTNERS</div>
+        <h2>동네의 개성이 브랜드의 이야기가 됩니다</h2>
+        <p>LocalLink와 함께하는 지역 파트너들입니다.</p>
+      </div>
+      <div class="partners">
+        <figure class="partner"><img src="images/shop-tailor.jpg" alt="재봉틀 앞에서 미소 짓는 수선집 사장님"><figcaption><span class="tag">수선집</span><b>한땀 수선실</b><span>패션 브랜드 리폼 클래스</span></figcaption></figure>
+        <figure class="partner"><img src="images/shop-pottery.jpg" alt="공방에서 도자기를 만드는 도예가"><figcaption><span class="tag">공방</span><b>흙과 손 도예공방</b><span>리빙 브랜드 원데이 클래스</span></figcaption></figure>
+        <figure class="partner"><img src="images/shop-traditional.jpg" alt="기와지붕이 있는 한국 전통 상점 외관"><figcaption><span class="tag">전통 상점</span><b>오래된 동네 상회</b><span>로컬 굿즈 팝업</span></figcaption></figure>
+        <figure class="partner"><img src="images/shop-laundry.jpg" alt="줄무늬 차양과 한국어 간판이 있는 동네 상점"><figcaption><span class="tag">생활 서비스</span><b>장미 컴퓨터세탁</b><span>세제 브랜드 체험 이벤트</span></figcaption></figure>
+      </div>
+    </div>
+  </div>
+
+  <div class="block alt">
+    <div class="container quote">
+      <img src="images/shop-cafe.jpg" alt="카페 카운터 앞에서 팔짱을 끼고 미소 짓는 사장님">
+      <div>
+        <blockquote>처음엔 브랜드 협업이 막막했는데, LocalLink 덕분에 우리 가게 손님들과 잘 맞는 브랜드를 만났어요. 한 달 만에 신규 손님이 눈에 띄게 늘었습니다.</blockquote>
+        <cite><b>김하늘 사장님</b> · 성북구 골목 로스터리 운영</cite>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="cta">
+      <h2>우리 브랜드에 꼭 맞는<br>동네 파트너를 찾아보세요</h2>
+      <p>목표와 예산만 알려주시면, 영업일 기준 3일 안에 추천 파트너 리스트를 보내드립니다.</p>
+      <button class="btn btn-primary" type="button" data-go="contact">무료 상담 신청하기 →</button>
+    </div>
   </div>
 </section>
 
+<!-- 회사 소개 -->
 <section data-page="about">
-  <div class="vision">동네 가게의 경쟁력이 브랜드의 성장으로 이어지는 연결을 만듭니다.</div>
+  <div class="container page">
+    <div class="vision">동네 가게의 경쟁력이 브랜드의 성장으로 이어지는 연결을 만듭니다.</div>
 
-  <h2>LocalLink가 해결하는 문제</h2>
-  <div class="grid">
-    <div class="card"><h3>파트너 찾기가 어렵다</h3><p>브랜드는 믿을 만한 지역 가게를 어디서 찾아야 할지 모릅니다.</p></div>
-    <div class="card"><h3>협업 과정이 번거롭다</h3><p>연락·제안·일정 조율에 많은 시간이 듭니다.</p></div>
-    <div class="card"><h3>효과를 알기 어렵다</h3><p>협업 후 실제로 무엇이 달라졌는지 확인하기 어렵습니다.</p></div>
+    <h2>LocalLink가 해결하는 문제</h2>
+    <div class="grid3">
+      <div class="card"><h3>파트너 찾기가 어렵다</h3><p>브랜드는 믿을 만한 지역 가게를 어디서 찾아야 할지 모릅니다.</p></div>
+      <div class="card"><h3>협업 과정이 번거롭다</h3><p>연락·제안·일정 조율에 많은 시간이 듭니다.</p></div>
+      <div class="card"><h3>효과를 알기 어렵다</h3><p>협업 후 실제로 무엇이 달라졌는지 확인하기 어렵습니다.</p></div>
+    </div>
+
+    <h2>팀 소개</h2>
+    <div class="grid3">
+      <div class="card"><div class="photo">사진 자리</div><h3>김지역</h3><div class="role">대표</div><p>지역 상권과 브랜드를 잇는 일을 10년째 하고 있습니다.</p></div>
+      <div class="card"><div class="photo">사진 자리</div><h3>이연결</h3><div class="role">파트너십 매니저</div><p>소상공인 파트너 발굴과 관계 관리를 맡고 있습니다.</p></div>
+      <div class="card"><div class="photo">사진 자리</div><h3>박데이터</h3><div class="role">성과 분석가</div><p>협업 결과를 숫자로 정리해 다음 전략을 제안합니다.</p></div>
+    </div>
+
+    <h2>회사 연혁</h2>
+    <ol class="timeline">
+      <li><b>2025.03</b>LocalLink 설립</li>
+      <li><b>2025.09</b>서울 성북구 소상공인 파트너 50곳 확보</li>
+      <li><b>2026.04</b>브랜드 협업 프로모션 누적 100건 진행</li>
+    </ol>
   </div>
-
-  <h2>팀 소개</h2>
-  <div class="grid">
-    <div class="card"><div class="photo">사진 자리</div><h3>김지역</h3><div class="role">대표</div><p>지역 상권과 브랜드를 잇는 일을 10년째 하고 있습니다.</p></div>
-    <div class="card"><div class="photo">사진 자리</div><h3>이연결</h3><div class="role">파트너십 매니저</div><p>소상공인 파트너 발굴과 관계 관리를 맡고 있습니다.</p></div>
-    <div class="card"><div class="photo">사진 자리</div><h3>박데이터</h3><div class="role">성과 분석가</div><p>협업 결과를 숫자로 정리해 다음 전략을 제안합니다.</p></div>
-  </div>
-
-  <h2>회사 연혁</h2>
-  <ol class="timeline">
-    <li><b>2025.03</b>LocalLink 설립</li>
-    <li><b>2025.09</b>서울 성북구 소상공인 파트너 50곳 확보</li>
-    <li><b>2026.04</b>브랜드 협업 프로모션 누적 100건 진행</li>
-  </ol>
 </section>
 
+<!-- 문의하기 -->
 <section data-page="contact">
-  <h1>문의하기</h1>
-  <p class="notice">이 화면은 시연용이며 입력 내용은 저장·발송되지 않습니다.</p>
-  <form id="form" novalidate>
-    <label>이름 *<input id="name" type="text"></label>
-    <label>회사명<input id="company" type="text"></label>
-    <label>이메일 *<input id="email" type="email"></label>
-    <label>문의 내용 *<textarea id="body"></textarea></label>
-    <div class="msg" id="msg"></div>
-    <button class="btn" type="submit">문의 보내기</button>
-  </form>
+  <div class="container page">
+    <h1>문의하기</h1>
+    <p class="notice">이 화면은 시연용이며 입력 내용은 저장·발송되지 않습니다.</p>
+    <form id="form" novalidate>
+      <label>이름 *<input id="name" type="text"></label>
+      <label>회사명<input id="company" type="text"></label>
+      <label>이메일 *<input id="email" type="email"></label>
+      <label>문의 내용 *<textarea id="body"></textarea></label>
+      <div class="msg" id="msg"></div>
+      <button class="btn btn-primary" type="submit">문의 보내기</button>
+    </form>
 
-  <h2>접수된 문의 목록</h2>
-  <div class="inquiries" id="inquiries"><p style="color:#98a2b3">아직 접수된 문의가 없습니다.</p></div>
+    <h2>접수된 문의 목록</h2>
+    <div class="inquiries" id="inquiries"><p style="color:#98a2b3">아직 접수된 문의가 없습니다.</p></div>
+  </div>
 </section>
 
-<footer>© 2026 LocalLink · 가상의 회사로 만든 바이브코딩 실습 예시입니다.</footer>
+<footer>
+  <div class="container">
+    <div><div class="logo"><i>L</i>LocalLink</div><p>© 2026 LocalLink · 가상의 회사로 만든 바이브코딩 실습 예시입니다.</p></div>
+    <p>이미지: <a href="https://unsplash.com/license" target="_blank" rel="noopener" style="color:#b9c3e0">Unsplash</a> 무료 이미지</p>
+  </div>
+</footer>
 
 <script>
   // 메뉴 전환
@@ -127,7 +331,7 @@
     document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.go === page));
     window.scrollTo(0, 0);
   };
-  document.querySelectorAll('nav button').forEach(b => b.onclick = () => go(b.dataset.go));
+  document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
   document.getElementById('toProcess').onclick = () => document.getElementById('process').scrollIntoView({ behavior: 'smooth' });
 
   // 문의하기 (화면 안에만 보관, 새로고침하면 사라짐)
