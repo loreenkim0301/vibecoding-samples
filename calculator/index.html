@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>실습 B · 상품 가격 계산기</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; background: #f4f6fb; color: #1c2430; }
+  .wrap { max-width: 520px; margin: 0 auto; padding: 32px 18px 48px; }
+  h1 { margin: 0 0 20px; font-size: 26px; }
+  .box { background: #fff; border: 1px solid #e3e7ef; border-radius: 16px; padding: 22px; }
+  label { display: block; margin-bottom: 16px; font-size: 18px; font-weight: 700; }
+  input { display: block; width: 100%; margin-top: 8px; padding: 14px 16px; border: 1px solid #cfd6e3; border-radius: 12px; font-size: 20px; }
+  .btns { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 6px; }
+  button { padding: 16px; border: 0; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; }
+  .calc { background: #2457f5; color: #fff; }
+  .reset { background: #e9edf5; color: #1c2430; }
+  .result { margin-top: 18px; }
+  .row { display: flex; justify-content: space-between; padding: 12px 4px; border-bottom: 1px solid #edf0f5; font-size: 18px; }
+  .final { margin-top: 14px; padding: 20px; border-radius: 14px; background: #eef3ff; text-align: center; }
+  .final small { display: block; color: #2457f5; font-size: 16px; font-weight: 700; }
+  .final b { display: block; margin-top: 4px; font-size: 38px; color: #1b3fb8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>상품 가격 계산기</h1>
+  <div class="box">
+    <label>상품 가격(원)<input id="price" type="number" inputmode="numeric" min="0" placeholder="예: 10000"></label>
+    <label>구매 수량(개)<input id="qty" type="number" inputmode="numeric" min="0" placeholder="예: 3"></label>
+    <label>할인율(%)<input id="rate" type="number" inputmode="decimal" min="0" max="100" placeholder="예: 10"></label>
+    <div class="btns">
+      <button class="calc" type="button" id="calcBtn">계산하기</button>
+      <button class="reset" type="button" id="resetBtn">초기화</button>
+    </div>
+    <div class="result">
+      <div class="row"><span>할인 전 금액</span><b id="before">0원</b></div>
+      <div class="row"><span>할인 금액</span><b id="discount">0원</b></div>
+      <div class="final"><small>최종 결제 금액</small><b id="total">0원</b></div>
+    </div>
+  </div>
+</div>
+<script>
+  const $ = id => document.getElementById(id);
+  const won = n => Math.round(n).toLocaleString('ko-KR') + '원';
+  function calc() {
+    const price = Number($('price').value) || 0;
+    const qty = Number($('qty').value) || 0;
+    const rate = Number($('rate').value) || 0;
+    // 정해 둔 계산식 그대로 사용
+    const before = price * qty;               // 할인 전 금액 = 상품 가격 × 구매 수량
+    const discount = before * rate / 100;     // 할인 금액 = 할인 전 금액 × 할인율 ÷ 100
+    const total = before - discount;          // 최종 결제 금액 = 할인 전 금액 - 할인 금액
+    $('before').textContent = won(before);
+    $('discount').textContent = won(discount);
+    $('total').textContent = won(total);
+  }
+  ['price', 'qty', 'rate'].forEach(id => $(id).addEventListener('input', calc));
+  $('calcBtn').onclick = calc;
+  $('resetBtn').onclick = () => { ['price', 'qty', 'rate'].forEach(id => $(id).value = ''); calc(); };
+</script>
+</body>
+</html>

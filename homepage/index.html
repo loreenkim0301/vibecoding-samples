@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LocalLink</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-size: 17px; line-height: 1.7; background: #f6f8fc; color: #16213a; }
+  header { position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 6vw; background: #fff; border-bottom: 1px solid #e3e7ef; }
+  .logo { font-size: 22px; font-weight: 800; color: #1b2f6b; }
+  nav { display: flex; gap: 4px; }
+  nav button { padding: 10px 14px; border: 0; border-radius: 10px; background: none; font-size: 16px; font-weight: 700; color: #475467; cursor: pointer; }
+  nav button.on { background: #1b2f6b; color: #fff; }
+  section[data-page] { display: none; padding: 48px 6vw 64px; max-width: 1100px; margin: 0 auto; }
+  section[data-page].on { display: block; }
+  h1 { margin: 0 0 14px; font-size: clamp(30px, 5vw, 46px); line-height: 1.3; color: #1b2f6b; }
+  h2 { margin: 48px 0 16px; font-size: 26px; color: #1b2f6b; }
+  .lead { max-width: 640px; color: #475467; font-size: 19px; }
+  .btn { display: inline-block; margin-top: 18px; padding: 14px 24px; border: 0; border-radius: 999px; background: #1b2f6b; color: #fff; font-size: 17px; font-weight: 700; cursor: pointer; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { padding: 22px; background: #fff; border: 1px solid #e3e7ef; border-radius: 16px; }
+  .card h3 { margin: 0 0 6px; font-size: 19px; }
+  .card p { margin: 0; color: #475467; }
+  .num { display: inline-grid; place-items: center; width: 34px; height: 34px; margin-bottom: 10px; border-radius: 50%; background: #e8edfb; color: #1b2f6b; font-weight: 800; }
+  .vision { padding: 30px; border-radius: 18px; background: #1b2f6b; color: #fff; font-size: clamp(22px, 3.4vw, 30px); font-weight: 800; line-height: 1.45; }
+  .photo { height: 120px; margin-bottom: 12px; border-radius: 12px; background: #e8edfb; display: grid; place-items: center; color: #8a98c2; font-size: 14px; }
+  .role { color: #2457f5; font-weight: 700; font-size: 15px; }
+  .timeline { margin: 0; padding: 0 0 0 22px; border-left: 3px solid #c9d4f3; list-style: none; }
+  .timeline li { position: relative; margin-bottom: 18px; }
+  .timeline li::before { content: ""; position: absolute; left: -30px; top: 8px; width: 13px; height: 13px; border-radius: 50%; background: #1b2f6b; }
+  .timeline b { display: block; color: #1b2f6b; }
+  .notice { margin-bottom: 18px; padding: 14px 16px; border-radius: 12px; background: #fff7e6; color: #8a5a00; font-size: 15px; }
+  form { display: grid; gap: 12px; max-width: 640px; }
+  label { font-weight: 700; }
+  input, textarea { display: block; width: 100%; margin-top: 6px; padding: 12px 14px; border: 1px solid #cfd6e3; border-radius: 10px; font-size: 16px; font-family: inherit; }
+  textarea { min-height: 120px; }
+  .msg { min-height: 24px; font-weight: 700; }
+  .msg.err { color: #c0362c; } .msg.ok { color: #067647; }
+  .inquiries { display: grid; gap: 10px; max-width: 640px; }
+  .inquiries .card small { color: #667085; }
+  footer { padding: 28px 6vw; color: #8a93a3; font-size: 14px; text-align: center; }
+  @media (max-width: 760px) {
+    header { flex-direction: column; align-items: flex-start; }
+    nav { width: 100%; } nav button { flex: 1; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">LocalLink</div>
+  <nav>
+    <button type="button" data-go="home" class="on">홈</button>
+    <button type="button" data-go="about">회사 소개</button>
+    <button type="button" data-go="contact">문의하기</button>
+  </nav>
+</header>
+
+<section data-page="home" class="on">
+  <h1>지역 소상공인과 브랜드를<br>가장 쉽게 연결합니다</h1>
+  <p class="lead">LocalLink는 지역 소상공인과 협업하려는 브랜드 담당자에게 딱 맞는 동네 파트너를 찾아주고, 협업의 시작부터 결과 확인까지 함께합니다.</p>
+  <button class="btn" type="button" id="toProcess">협업 방식 보기</button>
+
+  <h2>LocalLink가 제공하는 가치</h2>
+  <div class="grid">
+    <div class="card"><h3>검증된 지역 파트너</h3><p>업종·위치·고객층을 기준으로 브랜드와 잘 맞는 소상공인을 추천합니다.</p></div>
+    <div class="card"><h3>간편한 협업 진행</h3><p>제안부터 일정 조율까지 한곳에서 진행해 담당자의 시간을 아낍니다.</p></div>
+    <div class="card"><h3>한눈에 보는 성과</h3><p>방문·구매 변화를 정리한 리포트로 협업 효과를 확인합니다.</p></div>
+  </div>
+
+  <h2 id="process">이용 과정 3단계</h2>
+  <div class="grid">
+    <div class="card"><span class="num">1</span><h3>협업 목표 등록</h3><p>원하는 지역, 기간, 예산을 알려주세요.</p></div>
+    <div class="card"><span class="num">2</span><h3>파트너 매칭</h3><p>조건에 맞는 소상공인 후보를 받아보고 선택합니다.</p></div>
+    <div class="card"><span class="num">3</span><h3>협업 진행·리포트</h3><p>프로모션을 진행하고 결과 리포트를 받아봅니다.</p></div>
+  </div>
+</section>
+
+<section data-page="about">
+  <div class="vision">동네 가게의 경쟁력이 브랜드의 성장으로 이어지는 연결을 만듭니다.</div>
+
+  <h2>LocalLink가 해결하는 문제</h2>
+  <div class="grid">
+    <div class="card"><h3>파트너 찾기가 어렵다</h3><p>브랜드는 믿을 만한 지역 가게를 어디서 찾아야 할지 모릅니다.</p></div>
+    <div class="card"><h3>협업 과정이 번거롭다</h3><p>연락·제안·일정 조율에 많은 시간이 듭니다.</p></div>
+    <div class="card"><h3>효과를 알기 어렵다</h3><p>협업 후 실제로 무엇이 달라졌는지 확인하기 어렵습니다.</p></div>
+  </div>
+
+  <h2>팀 소개</h2>
+  <div class="grid">
+    <div class="card"><div class="photo">사진 자리</div><h3>김지역</h3><div class="role">대표</div><p>지역 상권과 브랜드를 잇는 일을 10년째 하고 있습니다.</p></div>
+    <div class="card"><div class="photo">사진 자리</div><h3>이연결</h3><div class="role">파트너십 매니저</div><p>소상공인 파트너 발굴과 관계 관리를 맡고 있습니다.</p></div>
+    <div class="card"><div class="photo">사진 자리</div><h3>박데이터</h3><div class="role">성과 분석가</div><p>협업 결과를 숫자로 정리해 다음 전략을 제안합니다.</p></div>
+  </div>
+
+  <h2>회사 연혁</h2>
+  <ol class="timeline">
+    <li><b>2025.03</b>LocalLink 설립</li>
+    <li><b>2025.09</b>서울 성북구 소상공인 파트너 50곳 확보</li>
+    <li><b>2026.04</b>브랜드 협업 프로모션 누적 100건 진행</li>
+  </ol>
+</section>
+
+<section data-page="contact">
+  <h1>문의하기</h1>
+  <p class="notice">이 화면은 시연용이며 입력 내용은 저장·발송되지 않습니다.</p>
+  <form id="form" novalidate>
+    <label>이름 *<input id="name" type="text"></label>
+    <label>회사명<input id="company" type="text"></label>
+    <label>이메일 *<input id="email" type="email"></label>
+    <label>문의 내용 *<textarea id="body"></textarea></label>
+    <div class="msg" id="msg"></div>
+    <button class="btn" type="submit">문의 보내기</button>
+  </form>
+
+  <h2>접수된 문의 목록</h2>
+  <div class="inquiries" id="inquiries"><p style="color:#98a2b3">아직 접수된 문의가 없습니다.</p></div>
+</section>
+
+<footer>© 2026 LocalLink · 가상의 회사로 만든 바이브코딩 실습 예시입니다.</footer>
+
+<script>
+  // 메뉴 전환
+  const go = page => {
+    document.querySelectorAll('section[data-page]').forEach(s => s.classList.toggle('on', s.dataset.page === page));
+    document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.go === page));
+    window.scrollTo(0, 0);
+  };
+  document.querySelectorAll('nav button').forEach(b => b.onclick = () => go(b.dataset.go));
+  document.getElementById('toProcess').onclick = () => document.getElementById('process').scrollIntoView({ behavior: 'smooth' });
+
+  // 문의하기 (화면 안에만 보관, 새로고침하면 사라짐)
+  const list = [];
+  const $ = id => document.getElementById(id);
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  $('form').onsubmit = e => {
+    e.preventDefault();
+    const name = $('name').value.trim(), company = $('company').value.trim(), email = $('email').value.trim(), body = $('body').value.trim();
+    const msg = $('msg');
+    if (!name || !email || !body) { msg.className = 'msg err'; msg.textContent = '필수 항목을 입력해주세요'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.className = 'msg err'; msg.textContent = '이메일 형식을 확인해주세요'; return; }
+    list.unshift({ name, company, email, body });
+    $('inquiries').innerHTML = list.map(q =>
+      `<div class="card"><h3>${esc(q.name)}${q.company ? ' · ' + esc(q.company) : ''}</h3><small>${esc(q.email)}</small><p>${esc(q.body)}</p></div>`).join('');
+    $('form').reset();
+    msg.className = 'msg ok'; msg.textContent = '문의가 접수되었습니다';
+  };
+</script>
+</body>
+</html>

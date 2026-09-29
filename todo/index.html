@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>실습 C · TODO 체크리스트</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; background: #f4f6fb; color: #1c2430; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 32px 18px 48px; }
+  h1 { margin: 0 0 4px; font-size: 26px; }
+  .sub { margin: 0 0 18px; color: #667085; font-size: 14px; }
+  form { display: flex; gap: 8px; margin-bottom: 14px; }
+  input[type=text] { flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid #cfd6e3; border-radius: 10px; font-size: 16px; }
+  button, select { padding: 10px 12px; border: 1px solid #cfd6e3; border-radius: 10px; background: #fff; font-size: 14px; cursor: pointer; }
+  form button { background: #2457f5; border-color: #2457f5; color: #fff; font-weight: 700; }
+  .counts { display: flex; gap: 8px; margin-bottom: 12px; font-size: 13px; color: #667085; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  li { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 12px 14px; background: #fff; border: 1px solid #e3e7ef; border-radius: 12px; }
+  li input[type=checkbox] { width: 20px; height: 20px; }
+  li .text { flex: 1; min-width: 0; word-break: break-all; }
+  li.done .text { color: #98a2b3; text-decoration: line-through; }
+  li .edit { flex: 1; padding: 8px 10px; border: 1px solid #2457f5; border-radius: 8px; font-size: 15px; }
+  .badge { padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .대기 { background: #f2f4f7; color: #475467; } .진행중 { background: #fff4e5; color: #b54708; } .완료 { background: #e7f8ef; color: #067647; }
+  .empty { padding: 24px; text-align: center; color: #98a2b3; }
+  @media (max-width: 520px) { li { flex-wrap: wrap; } li .text, li .edit { flex-basis: calc(100% - 34px); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>프로젝트 TODO 체크리스트</h1>
+  <p class="sub">추가·수정·삭제·상태 변경 내용은 이 브라우저(localStorage)에 자동 저장되어 새로고침해도 유지됩니다.</p>
+  <form id="addForm"><input id="newText" type="text" placeholder="새로운 할 일을 입력하세요" required><button type="submit">추가</button></form>
+  <div class="counts" id="counts"></div>
+  <ul id="list"></ul>
+</div>
+<script>
+  const KEY = 'vibe-sample-todos';
+  const STATUSES = ['대기', '진행중', '완료'];
+  let todos;
+  try { todos = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  if (!Array.isArray(todos)) todos = [
+    { id: 1, text: '홈페이지 메뉴 구성 정하기', status: '완료' },
+    { id: 2, text: 'GitHub에 index.html 올리기', status: '진행중' },
+    { id: 3, text: 'Vercel로 배포하기', status: '대기' }
+  ];
+  let editingId = null;
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(todos)); } catch (e) {} };
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function render() {
+    document.getElementById('counts').textContent =
+      STATUSES.map(s => `${s} ${todos.filter(t => t.status === s).length}`).join(' · ');
+    document.getElementById('list').innerHTML = todos.length ? todos.map(t => `
+      <li class="${t.status === '완료' ? 'done' : ''}" data-id="${t.id}">
+        <input type="checkbox" ${t.status === '완료' ? 'checked' : ''} aria-label="완료 체크">
+        ${editingId === t.id ? `<input class="edit" type="text" value="${esc(t.text)}">` : `<span class="text">${esc(t.text)}</span>`}
+        <select aria-label="상태">${STATUSES.map(s => `<option ${s === t.status ? 'selected' : ''}>${s}</option>`).join('')}</select>
+        <span class="badge ${t.status}">${t.status}</span>
+        <button type="button" data-act="edit">${editingId === t.id ? '저장' : '수정'}</button>
+        <button type="button" data-act="del">삭제</button>
+      </li>`).join('') : '<li class="empty">할 일이 없습니다.</li>';
+    const input = document.querySelector('li .edit');
+    if (input) { input.focus(); input.onkeydown = e => { if (e.key === 'Enter') finishEdit(); }; }
+  }
+  function finishEdit() {
+    const input = document.querySelector('li .edit');
+    const t = todos.find(t => t.id === editingId);
+    if (t && input && input.value.trim()) t.text = input.value.trim();
+    editingId = null; save(); render();
+  }
+
+  document.getElementById('addForm').onsubmit = e => {
+    e.preventDefault();
+    const text = document.getElementById('newText').value.trim();
+    if (!text) return;
+    todos.push({ id: Date.now(), text, status: '대기' });
+    document.getElementById('newText').value = '';
+    save(); render();
+  };
+  document.getElementById('list').addEventListener('click', e => {
+    const li = e.target.closest('li[data-id]'); if (!li) return;
+    const id = Number(li.dataset.id), t = todos.find(t => t.id === id);
+    if (e.target.dataset.act === 'del') { todos = todos.filter(x => x.id !== id); save(); render(); }
+    if (e.target.dataset.act === 'edit') { editingId === id ? finishEdit() : (editingId = id, render()); }
+  });
+  document.getElementById('list').addEventListener('change', e => {
+    const li = e.target.closest('li[data-id]'); if (!li) return;
+    const t = todos.find(t => t.id === Number(li.dataset.id));
+    if (e.target.type === 'checkbox') t.status = e.target.checked ? '완료' : '진행중';
+    if (e.target.tagName === 'SELECT') t.status = e.target.value;
+    save(); render();
+  });
+  render();
+</script>
+</body>
+</html>

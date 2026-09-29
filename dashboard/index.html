@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>실습 A · 매출 대시보드</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; background: #f4f6fb; color: #1c2430; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 18px 48px; }
+  h1 { margin: 0 0 4px; font-size: 26px; }
+  .sub { margin: 0 0 22px; color: #667085; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+  .card, .panel { background: #fff; border: 1px solid #e3e7ef; border-radius: 14px; padding: 18px 20px; }
+  .card small { color: #667085; font-weight: 700; }
+  .card b { display: block; margin-top: 6px; font-size: 26px; }
+  .panel { margin-bottom: 18px; }
+  .panel h2 { margin: 0 0 12px; font-size: 18px; }
+  svg { width: 100%; height: auto; display: block; }
+  .tools { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+  .tools input { flex: 1; min-width: 200px; padding: 10px 12px; border: 1px solid #cfd6e3; border-radius: 10px; font-size: 15px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { padding: 8px 12px; border: 1px solid #cfd6e3; border-radius: 999px; background: #fff; font-size: 14px; cursor: pointer; }
+  .chips button.on { background: #2457f5; border-color: #2457f5; color: #fff; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { padding: 10px 8px; border-bottom: 1px solid #edf0f5; text-align: right; }
+  th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+  th { color: #667085; font-size: 13px; }
+  .empty { padding: 18px; text-align: center; color: #98a2b3; }
+  @media (max-width: 680px) {
+    .cards { grid-template-columns: 1fr; }
+    table thead { display: none; }
+    table, tbody, tr, td { display: block; width: 100%; }
+    tr { margin-bottom: 10px; padding: 12px 14px; border: 1px solid #e3e7ef; border-radius: 12px; }
+    td { display: flex; justify-content: space-between; padding: 4px 0; border: 0; text-align: right !important; }
+    td::before { content: attr(data-label); color: #667085; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>1인 쇼핑몰 매출 대시보드</h1>
+  <p class="sub">예제 데이터: onestore_sales_500m_sample.csv (2026년 1~9월, 5개 상품)</p>
+
+  <div class="cards">
+    <div class="card"><small>총매출</small><b id="sumSales"></b></div>
+    <div class="card"><small>총이익</small><b id="sumProfit"></b></div>
+    <div class="card"><small>마진율</small><b id="margin"></b></div>
+  </div>
+
+  <div class="panel">
+    <h2>월별 매출 추이</h2>
+    <svg id="chart" viewBox="0 0 720 300" role="img" aria-label="월별 매출 막대 그래프"></svg>
+  </div>
+
+  <div class="panel">
+    <h2>상품별 매출</h2>
+    <div class="tools">
+      <input id="q" type="search" placeholder="상품명 검색">
+      <div class="chips" id="chips"></div>
+    </div>
+    <table>
+      <thead><tr><th>상품명</th><th>카테고리</th><th>매출액</th><th>이익</th><th>마진율</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// 예제 CSV와 동일한 데이터 (월, 상품명, 카테고리, 매출액, 원가)
+const data = [
+  ['2026-01','베스트 패딩','패션',22000000,12000000],['2026-01','스니커즈','신발',18000000,10000000],['2026-01','스킨케어 세트','뷰티',15000000,8000000],['2026-01','캠핑 백팩','레저',10000000,5500000],['2026-01','홈 스테이션','디지털',7000000,4000000],
+  ['2026-02','베스트 패딩','패션',24000000,13000000],['2026-02','스니커즈','신발',19000000,10500000],['2026-02','스킨케어 세트','뷰티',16000000,8500000],['2026-02','캠핑 백팩','레저',11000000,6000000],['2026-02','홈 스테이션','디지털',8000000,4500000],
+  ['2026-03','베스트 패딩','패션',26000000,14000000],['2026-03','스니커즈','신발',21000000,11500000],['2026-03','스킨케어 세트','뷰티',18000000,9500000],['2026-03','캠핑 백팩','레저',12000000,6500000],['2026-03','홈 스테이션','디지털',9000000,5000000],
+  ['2026-04','베스트 패딩','패션',28000000,15000000],['2026-04','스니커즈','신발',22000000,12000000],['2026-04','스킨케어 세트','뷰티',19000000,10000000],['2026-04','캠핑 백팩','레저',13000000,7000000],['2026-04','홈 스테이션','디지털',10000000,5500000],
+  ['2026-05','베스트 패딩','패션',30000000,16000000],['2026-05','스니커즈','신발',23000000,12500000],['2026-05','스킨케어 세트','뷰티',20000000,10500000],['2026-05','캠핑 백팩','레저',14000000,7500000],['2026-05','홈 스테이션','디지털',11000000,6000000],
+  ['2026-06','베스트 패딩','패션',32000000,17000000],['2026-06','스니커즈','신발',24000000,13000000],['2026-06','스킨케어 세트','뷰티',21000000,11000000],['2026-06','캠핑 백팩','레저',15000000,8000000],['2026-06','홈 스테이션','디지털',12000000,6500000],
+  ['2026-07','베스트 패딩','패션',34000000,18000000],['2026-07','스니커즈','신발',25000000,13500000],['2026-07','스킨케어 세트','뷰티',22000000,11500000],['2026-07','캠핑 백팩','레저',16000000,8500000],['2026-07','홈 스테이션','디지털',13000000,7000000],
+  ['2026-08','베스트 패딩','패션',36000000,19000000],['2026-08','스니커즈','신발',26000000,14000000],['2026-08','스킨케어 세트','뷰티',23000000,12000000],['2026-08','캠핑 백팩','레저',17000000,9000000],['2026-08','홈 스테이션','디지털',14000000,7500000],
+  ['2026-09','베스트 패딩','패션',38000000,20000000],['2026-09','스니커즈','신발',27000000,14500000],['2026-09','스킨케어 세트','뷰티',24000000,12500000],['2026-09','캠핑 백팩','레저',18000000,9500000],['2026-09','홈 스테이션','디지털',15000000,8000000]
+].map(([month, name, cat, sales, cost]) => ({ month, name, cat, sales, cost }));
+
+const won = n => n.toLocaleString('ko-KR') + '원';
+const eok = n => (n / 100000000).toFixed(2) + '억 원';
+const pct = (a, b) => (a / b * 100).toFixed(1) + '%';
+
+// 요약 카드
+const totalSales = data.reduce((s, r) => s + r.sales, 0);
+const totalProfit = data.reduce((s, r) => s + r.sales - r.cost, 0);
+document.getElementById('sumSales').textContent = eok(totalSales);
+document.getElementById('sumProfit').textContent = eok(totalProfit);
+document.getElementById('margin').textContent = pct(totalProfit, totalSales);
+
+// 월별 매출 막대 그래프 (X축: 월, Y축: 매출(원))
+const months = [...new Set(data.map(r => r.month))];
+const monthly = months.map(m => data.filter(r => r.month === m).reduce((s, r) => s + r.sales, 0));
+const max = 150000000, L = 90, B = 250, W = 610, H = 210;
+let svg = '';
+for (let v = 0; v <= max; v += 30000000) {
+  const y = B - v / max * H;
+  svg += `<line x1="${L}" y1="${y}" x2="${L + W}" y2="${y}" stroke="#edf0f5"/><text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="12" fill="#667085">${v ? (v / 100000000).toFixed(1) + "억" : "0"}</text>`;
+}
+monthly.forEach((v, i) => {
+  const bw = W / months.length, x = L + i * bw + bw * 0.2, h = v / max * H;
+  svg += `<rect x="${x}" y="${B - h}" width="${bw * 0.6}" height="${h}" rx="4" fill="#2457f5"><title>${months[i]} ${won(v)}</title></rect>`;
+  svg += `<text x="${x + bw * 0.3}" y="${B + 18}" text-anchor="middle" font-size="12" fill="#667085">${+months[i].slice(5)}월</text>`;
+});
+svg += `<text x="${L + W / 2}" y="292" text-anchor="middle" font-size="13" font-weight="700" fill="#1c2430">월</text>`;
+svg += `<text x="16" y="${B - H / 2}" text-anchor="middle" font-size="13" font-weight="700" fill="#1c2430" transform="rotate(-90 16 ${B - H / 2})">매출(원)</text>`;
+document.getElementById('chart').innerHTML = svg;
+
+// 상품별 매출 표 + 검색 + 카테고리 필터
+const products = [...new Set(data.map(r => r.name))].map(name => {
+  const rs = data.filter(r => r.name === name);
+  const sales = rs.reduce((s, r) => s + r.sales, 0), cost = rs.reduce((s, r) => s + r.cost, 0);
+  return { name, cat: rs[0].cat, sales, profit: sales - cost };
+});
+const cats = ['전체', '패션', '신발', '뷰티', '레저', '디지털'];
+let cat = '전체';
+const chips = document.getElementById('chips');
+chips.innerHTML = cats.map(c => `<button type="button" class="${c === cat ? 'on' : ''}">${c}</button>`).join('');
+chips.onclick = e => {
+  if (e.target.tagName !== 'BUTTON') return;
+  cat = e.target.textContent;
+  [...chips.children].forEach(b => b.classList.toggle('on', b.textContent === cat));
+  render();
+};
+document.getElementById('q').oninput = render;
+function render() {
+  const q = document.getElementById('q').value.trim();
+  const list = products.filter(p => (cat === '전체' || p.cat === cat) && p.name.includes(q));
+  document.getElementById('rows').innerHTML = list.length ? list.map(p =>
+    `<tr><td data-label="상품명">${p.name}</td><td data-label="카테고리">${p.cat}</td><td data-label="매출액">${won(p.sales)}</td><td data-label="이익">${won(p.profit)}</td><td data-label="마진율">${pct(p.profit, p.sales)}</td></tr>`
+  ).join('') : '<tr><td class="empty" colspan="5">검색 결과가 없습니다.</td></tr>';
+}
+render();
+</script>
+</body>
+</html>
